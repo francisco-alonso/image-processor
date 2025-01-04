@@ -12,7 +12,7 @@ RUN go mod tidy
 COPY . .
 
 # Build the Go binary for Linux architecture (cross-compile for Linux)
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o kvstore ./cmd/kvstorecli
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o go-template ./cmd
 
 # Use a minimal base image for the final container (Alpine)
 FROM debian:bullseye-slim
