@@ -1,14 +1,9 @@
-# .github/workflows/ci.yml
 name: CI
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-
 jobs:
   build:
 
@@ -29,5 +24,9 @@ jobs:
     - name: Build
       run: go build -o build/app ./cmd/main.go
 
-    - name: Run tests
-      run: go test -v ./...
+    - name: Run tests with coverage
+      run: go test -coverprofile=coverage.out ./...
+
+    - name: Generate coverage summary
+      run: go tool cover -func=coverage.out | tee coverage-summary.txt
+      

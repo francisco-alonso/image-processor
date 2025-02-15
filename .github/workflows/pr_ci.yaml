@@ -1,0 +1,41 @@
+name: Pr CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  pull-requests: write
+  contents: read
+  
+jobs:
+  test:
+    name: Run Tests & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.23
+          
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run Tests with Coverage
+        run: go test -coverprofile=coverage.out ./...
+
+      - name: Generate Coverage Summary
+        run: go tool cover -func=coverage.out | tee coverage-summary.txt
+
+      - name: Comment PR with Coverage Report
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: coverage-summary.txt
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          mode: upsert
+          create_if_not_exists: true
