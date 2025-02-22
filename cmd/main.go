@@ -103,8 +103,6 @@ func startPubSubListener(ctx context.Context, projectID, subscriptionID string) 
 			return
 		}
 		
-		log.Println("%v", obj)
-
 		msg.Ack()
 	})
 
