@@ -22,7 +22,7 @@ jobs:
       run: go mod tidy
 
     - name: Build
-      run: go build -o build/app ./cmd/main.go
+      run: go build -o image-processor ./cmd/main.go
 
     - name: Run tests with coverage
       run: go test -coverprofile=coverage.out ./...

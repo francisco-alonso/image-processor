@@ -1,33 +1,22 @@
-# Use Go's official image as the builder
 FROM golang:1.23 AS builder
 
-# Set the current working directory inside the container
 WORKDIR /app
 
-# Copy the Go module files and download the dependencies
 COPY go.mod go.sum ./
-RUN go mod tidy
+RUN go mod download
 
-# Copy the source code into the container
 COPY . .
 
-# Build the Go binary for Linux architecture (cross-compile for Linux)
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o go-template ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -o image-processor cmd/main.go
 
-# Use a minimal base image for the final container (Alpine)
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
-# Install necessary dependencies (e.g., ca-certificates) to run the Go binary
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# Copy the built binary from the builder stage to the target image
-COPY --from=builder /app/go-template /usr/local/bin/go-template
+RUN apt-get update && apt-get install -y libc6 ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Ensure the binary has execute permissions
-RUN chmod +x /usr/local/bin/go-template
+COPY --from=builder /app/image-processor /app/
 
-# Expose the application port (assuming your Go service runs on port 8080)
 EXPOSE 8080
 
-# Command to run the binary
-CMD ["/usr/local/bin/go-template"]
+CMD ["/app/image-processor"]
