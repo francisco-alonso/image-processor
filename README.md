@@ -96,6 +96,12 @@ gcloud iam service-accounts keys create gcp-auth-key.json \
   --iam-account=${SERVICE_ACCOUNT}@${PROJECT_ID}.iam.gserviceaccount.com
 ```
 
+In order to run the container in local with the key created
+```sh
+docker run --rm -p 8080:8080 -e PROJECT_ID=${PROJECT_ID} -e SUBSCRIPTION_NAME=${SUBSCRIPTION_NAME} -e DESTINATION_BUCKET=${PROJECT_ID}-destination-images -e GOOGLE_APPLICATION_CREDENTIALS="/gcp-auth/key.json" -v $HOME/$file.json:/gcp-auth/key.json:ro gcr.io/${PROJECT_ID}/image-processor
+```
+where `$file` is the name of the file containing the key.
+
 ---
 
 ## 📌 4. Build and Deploy to Cloud Run
