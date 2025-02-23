@@ -35,7 +35,7 @@ export REGION="us-central1"
 export SOURCE_BUCKET="${PROJECT_ID}-source-images"
 export DESTINATION_BUCKET="${PROJECT_ID}-destination-images"
 export PUBSUB_TOPIC="image-processing-topic"
-export SUBSCRIPTION_NAME="image-processing-sub"
+export SUBSCRIPTION_ID="image-processing-sub"
 export SERVICE_ACCOUNT="image-processor-sa"
 ```
 
@@ -50,7 +50,7 @@ gcloud storage buckets create gs://$DESTINATION_BUCKET --location=$REGION
 
 ```sh
 gcloud pubsub topics create $PUBSUB_TOPIC
-gcloud pubsub subscriptions create $SUBSCRIPTION_NAME --topic=$PUBSUB_TOPIC
+gcloud pubsub subscriptions create $SUBSCRIPTION_ID --topic=$PUBSUB_TOPIC
 ```
 
 ### 🔹 2.4. Configure Cloud Storage to Publish Events to Pub/Sub
@@ -98,7 +98,7 @@ gcloud iam service-accounts keys create gcp-auth-key.json \
 
 In order to run the container in local with the key created
 ```sh
-docker run --rm -p 8080:8080 -e PROJECT_ID=${PROJECT_ID} -e SUBSCRIPTION_NAME=${SUBSCRIPTION_NAME} -e DESTINATION_BUCKET=${PROJECT_ID}-destination-images -e GOOGLE_APPLICATION_CREDENTIALS="/gcp-auth/key.json" -v $HOME/$file.json:/gcp-auth/key.json:ro gcr.io/${PROJECT_ID}/image-processor
+docker run --rm -p 8080:8080 -e PROJECT_ID=${PROJECT_ID} -e SUBSCRIPTION_NAME=${SUBSCRIPTION_ID} -e DESTINATION_BUCKET=${PROJECT_ID}-destination-images -e GOOGLE_APPLICATION_CREDENTIALS="/gcp-auth/key.json" -v $HOME/$file.json:/gcp-auth/key.json:ro gcr.io/${PROJECT_ID}/image-processor
 ```
 where `$file` is the name of the file containing the key.
 
@@ -119,7 +119,7 @@ gcloud run deploy image-processor-service \
   --image gcr.io/$PROJECT_ID/image-processor \
   --platform managed \
   --region $REGION \
-  --set-env-vars PROJECT_ID=$PROJECT_ID,SUBSCRIPTION_NAME=$SUBSCRIPTION_NAME,DESTINATION_BUCKET=$DESTINATION_BUCKET \
+  --set-env-vars PROJECT_ID=$PROJECT_ID,SUBSCRIPTION_NAME=$SUBSCRIPTION_ID,DESTINATION_BUCKET=$DESTINATION_BUCKET \
   --service-account=${SERVICE_ACCOUNT}@${PROJECT_ID}.iam.gserviceaccount.com \
   --allow-unauthenticated
 ```
@@ -153,7 +153,7 @@ gcloud run logs read image-processor-service
 ### 🔹 View Messages in Pub/Sub
 
 ```sh
-gcloud pubsub subscriptions pull $SUBSCRIPTION_NAME --auto-ack
+gcloud pubsub subscriptions pull $SUBSCRIPTION_ID --auto-ack
 ```
 
 ---
@@ -164,7 +164,7 @@ gcloud pubsub subscriptions pull $SUBSCRIPTION_NAME --auto-ack
 gcloud storage buckets delete gs://$SOURCE_BUCKET
 gcloud storage buckets delete gs://$DESTINATION_BUCKET
 gcloud pubsub topics delete $PUBSUB_TOPIC
-gcloud pubsub subscriptions delete $SUBSCRIPTION_NAME
+gcloud pubsub subscriptions delete $SUBSCRIPTION_ID
 gcloud run services delete image-processor-service
 gcloud iam service-accounts delete ${SERVICE_ACCOUNT}@${PROJECT_ID}.iam.gserviceaccount.com
 ```
