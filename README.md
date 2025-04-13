@@ -202,3 +202,4 @@ COPY --from=builder /app/image-processor /app/
 EXPOSE 8080
 CMD ["/app/image-processor"]
 ```
+
